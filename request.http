@@ -1,4 +1,2 @@
-POST http://localhost:8000/publish
-Content-Type: application/json
+GET http://localhost:8000
 
-< input.json

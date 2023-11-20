@@ -87,7 +87,7 @@ func RestoreCache(ctx context.Context, rep *repository.Repository) *Cache {
 		log.Fatalf("Cache restore failed %v", err)
 	}
 	for i := range res {
-		ch.Set(res[i].Id, res, 0)
+		ch.Set(res[i].Id, res[i], 0)
 	}
 	return ch
 }

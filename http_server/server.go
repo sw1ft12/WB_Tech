@@ -15,16 +15,25 @@ type Handler struct {
 	Sc      stan.Conn
 }
 
+func (h *Handler) homePageGET(c *gin.Context) {
+	c.HTML(http.StatusOK, "index.html", nil)
+}
+
+func (h *Handler) homePagePOST(c *gin.Context) {
+	t := c.PostForm("message")
+	c.Redirect(http.StatusFound, "/orders?order_id="+t)
+}
+
 func (h *Handler) getOrder(c *gin.Context) {
-	orderId := c.Param("order_uid")
+	orderId := c.Query("order_id")
+
 	dt, found := h.Storage.Get(orderId)
 	if !found {
 		c.IndentedJSON(http.StatusNotFound, gin.H{"message": "Order not found"})
 		return
 	}
-	jsonData, _ := json.Marshal(dt)
-	c.HTML(http.StatusOK, "index.tmpl", jsonData)
-	//c.IndentedJSON(http.StatusOK, dt)
+
+	c.IndentedJSON(http.StatusOK, dt)
 }
 
 func (h *Handler) publishOrder(c *gin.Context) {
@@ -53,7 +62,9 @@ func (h *Handler) publishOrder(c *gin.Context) {
 func (h *Handler) InitRoutes() *gin.Engine {
 	router := gin.Default()
 	router.LoadHTMLGlob("templates/*")
-	router.GET("/:order_uid", h.getOrder)
+	router.GET("/", h.homePageGET)
+	router.POST("/", h.homePagePOST)
+	router.GET("/orders", h.getOrder)
 	router.POST("/publish", h.publishOrder)
 	return router
 }
